@@ -1,28 +1,34 @@
--- Create the users table to store user information
+-- Create the "users" table
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,              -- Auto-incremented user ID
-    username VARCHAR(255) NOT NULL,      -- Username for login
-    email VARCHAR(255) NOT NULL,         -- User's email address
-    password VARCHAR(255) NOT NULL,      -- User's password (ensure this is hashed in real applications)
-    role VARCHAR(50) NOT NULL            -- Role can be 'buyer', 'seller', or 'admin'
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL
 );
 
--- Create the products table to store product information
-CREATE TABLE products (
-    id SERIAL PRIMARY KEY,              -- Auto-incremented product ID
-    name VARCHAR(255) NOT NULL,          -- Product name
-    price DECIMAL(10, 2) NOT NULL,       -- Product price
-    quantity INT NOT NULL,              -- Product quantity
-    seller_id INT REFERENCES users(id), -- Seller is a foreign key to the users table
-    CONSTRAINT fk_seller FOREIGN KEY(seller_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- Insert some sample roles into the users table (optional, for testing purposes)
+-- Insert some test users (optional)
 INSERT INTO users (username, email, password, role) VALUES
-('adminuser', 'admin@ecommerce.com', 'adminpassword', 'admin'),
-('buyeruser', 'buyer@ecommerce.com', 'buyerpassword', 'buyer'),
-('selleruser', 'seller@ecommerce.com', 'sellerpassword', 'seller');
+('admin_user', 'admin@example.com', 'adminpassword', 'admin'),
+('buyer_user', 'buyer@example.com', 'buyerpassword', 'buyer'),
+('seller_user', 'seller@example.com', 'sellerpassword', 'seller');
 
--- Example of creating an index for faster searches on common queries (optional)
-CREATE INDEX idx_users_username ON users (username);
-CREATE INDEX idx_products_name ON products (name);
+-- Create the "products" table
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT NOT NULL,
+    seller_id INT,
+    CONSTRAINT fk_products_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create the "orders" table
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    buyer_id INT,
+    product_id INT,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_orders_buyer FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_orders_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
