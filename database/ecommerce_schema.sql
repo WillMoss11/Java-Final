@@ -7,12 +7,6 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL
 );
 
--- Insert some test users (optional)
-INSERT INTO users (username, email, password, role) VALUES
-('admin_user', 'admin@example.com', 'adminpassword', 'admin'),
-('buyer_user', 'buyer@example.com', 'buyerpassword', 'buyer'),
-('seller_user', 'seller@example.com', 'sellerpassword', 'seller');
-
 -- Create the "products" table
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
