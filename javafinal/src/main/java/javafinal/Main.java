@@ -63,7 +63,7 @@ public class Main {
                     String loginPassword = scanner.nextLine();
 
                     // Login the user
-                    User loggedInUser = userService.loginUser(loginUsername, loginPassword);
+                    User loggedInUser = userService.loginUser(loginUsername, Bcrypt.hashpw(loginPassword));
                     if (loggedInUser != null) {
                         System.out.println("Login successful: " + loggedInUser.getUsername());
                         // Show the role-based menu
