@@ -1,0 +1,65 @@
+User Documentation
+
+What is this Application?
+
+This is a simple E-commerce application that allows users to register, log in, and perform various actions based on their roles:
+
+Buyer: Can browse products, add to cart, and checkout.
+Seller: Can add, update, and delete products.
+Admin: Can view all users and products, and perform administrative tasks.
+How to Start the Application:
+
+Compile the Source Code:
+Using a command-line compiler:
+Bash
+javac -cp "path/to/your/dependencies/*" app/Main.java
+
+Replace path/to/your/dependencies/* with the actual path to your dependencies (e.g., BCrypt JAR).
+Using an IDE: Most IDEs have built-in compilation features. Simply compile your project within the IDE.
+Run the Application: Navigate to the directory containing the compiled Main.class file and run:
+Bash
+java app.Main
+
+Build Process:
+
+Using Maven:
+Ensure you have Maven installed.
+Navigate to your project's root directory in your terminal.
+Run the following command:
+Bash
+mvn clean install
+Use code with caution.
+
+Manual Compilation:
+Use a command-line compiler as described in the "User Documentation" section.
+Compiler Time Dependencies:
+
+BCrypt library for password hashing
+Development Standards:
+
+Adhere to Java coding conventions and best practices.
+Use meaningful variable and method names.
+Write clean and well-commented code.
+Database Setup:
+
+Create a PostgreSQL database.
+Set up database connection details in your application's configuration.
+Ensure necessary database drivers are included in your project.
+Getting the Source Code:
+[Provide instructions on how to obtain the source code from your repository, e.g., GitHub, GitLab]
+
+Deployment Documentation
+
+Installation:
+
+Compile the Application: Follow the steps in the "Build Process" section of the Development Documentation.
+Deploy the JAR:
+Copy the generated JAR file to the desired deployment location.
+Run the Application:
+Use the java -jar command to execute the JAR file:
+Bash
+java -jar your-project.jar
+
+Team Contributions:
+I worked on making our project Maven dependant and wrote this report, While William wrote the ClI and the Database functionality. The biggest challenge we faced was getting our group planning sorted
+out with our other group mate not answering and dissapearing for a long time.

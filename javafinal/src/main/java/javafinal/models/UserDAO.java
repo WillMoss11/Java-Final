@@ -4,13 +4,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import database.DBConnection;
+
 public class UserDAO {
 
     // Create (Register a new user)
     public void createUser(User user) {
         String query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseHelper.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, user.getUsername());
@@ -29,7 +31,7 @@ public class UserDAO {
         String query = "SELECT * FROM users WHERE id = ?";
         User user = null;
 
-        try (Connection conn = DatabaseHelper.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);
@@ -51,7 +53,7 @@ public class UserDAO {
         String query = "SELECT * FROM users";
         List<User> users = new ArrayList<>();
 
-        try (Connection conn = DatabaseHelper.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -71,7 +73,7 @@ public class UserDAO {
     public void updateUser(User user) {
         String query = "UPDATE users SET username = ?, email = ?, password = ?, role = ? WHERE id = ?";
 
-        try (Connection conn = DatabaseHelper.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, user.getUsername());
@@ -90,7 +92,7 @@ public class UserDAO {
     public void deleteUser(int id) {
         String query = "DELETE FROM users WHERE id = ?";
 
-        try (Connection conn = DatabaseHelper.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, id);

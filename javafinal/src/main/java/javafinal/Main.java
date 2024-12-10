@@ -7,6 +7,7 @@ import models.ProductService;
 import models.Buyer;
 import models.Seller;
 import models.Admin;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class Main {
 
@@ -36,14 +37,15 @@ public class Main {
                     System.out.print("Enter role (buyer/seller/admin): ");
                     String role = scanner.nextLine();
 
+                    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
                     // Create User object based on role
                     User newUser;
                     if (role.equalsIgnoreCase("buyer")) {
-                        newUser = new Buyer(username, email, password, role);
+                        newUser = new Buyer(username, email, hashedPassword, role);
                     } else if (role.equalsIgnoreCase("seller")) {
-                        newUser = new Seller(username, email, password, role);
+                        newUser = new Seller(username, email, hashedPassword, role);
                     } else {
-                        newUser = new Admin(username, email, password, role);
+                        newUser = new Admin(username, email, hashedPassword, role);
                     }
 
                     // Register the user
