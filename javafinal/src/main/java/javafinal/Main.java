@@ -1,16 +1,7 @@
-package app;
-
+import models.*;
 import java.util.Scanner;
-import models.User;
-import models.UserService;
-import models.ProductService;
-import models.Buyer;
-import models.Seller;
-import models.Admin;
-import org.mindrot.jbcrypt.BCrypt;
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         UserService userService = new UserService();
@@ -28,6 +19,7 @@ public class Main {
 
             switch (choice) {
                 case 1: // Register
+                    // Registration logic
                     System.out.print("Enter username: ");
                     String username = scanner.nextLine();
                     System.out.print("Enter email: ");
@@ -37,22 +29,12 @@ public class Main {
                     System.out.print("Enter role (buyer/seller/admin): ");
                     String role = scanner.nextLine();
 
-                    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-                    // Create User object based on role
-                    User newUser;
-                    if (role.equalsIgnoreCase("buyer")) {
-                        newUser = new Buyer(username, email, hashedPassword, role);
-                    } else if (role.equalsIgnoreCase("seller")) {
-                        newUser = new Seller(username, email, hashedPassword, role);
-                    } else {
-                        newUser = new Admin(username, email, hashedPassword, role);
-                    }
-
-                    // Register the user
-                    if (userService.registerUser(newUser)) {
+                    User user = new User(username, email, password, role);
+                    boolean registered = userService.registerUser(user);
+                    if (registered) {
                         System.out.println("Registration successful!");
                     } else {
-                        System.out.println("Registration failed!");
+                        System.out.println("Registration failed.");
                     }
                     break;
 
@@ -63,11 +45,13 @@ public class Main {
                     String loginPassword = scanner.nextLine();
 
                     // Login the user
-                    User loggedInUser = userService.loginUser(loginUsername, Bcrypt.hashpw(loginPassword));
+                    User loggedInUser = userService.loginUser(loginUsername, loginPassword);
                     if (loggedInUser != null) {
                         System.out.println("Login successful: " + loggedInUser.getUsername());
-                        // Show the role-based menu
-                        showRoleMenu(loggedInUser, scanner, userService, productService); // Pass userService
+                        System.out.println("Logged in as: " + loggedInUser.getUsername() + " - Role: " + loggedInUser.getRole());
+                        
+                        // Check if the logged in user is valid, then show the role-based menu
+                        showRoleMenu(loggedInUser, scanner, userService, productService); // Ensure this method is being called
                     } else {
                         System.out.println("Login failed!");
                     }
@@ -86,123 +70,121 @@ public class Main {
 
     // Show menu based on user role (buyer, seller, admin)
     private static void showRoleMenu(User loggedInUser, Scanner scanner, UserService userService, ProductService productService) {
-        if (loggedInUser instanceof Buyer) {
-            // Buyer menu
-            while (true) {
-                System.out.println("\nBuyer Menu:");
-                System.out.println("1. Browse products");
-                System.out.println("2. Logout");
-                System.out.print("Choose an option: ");
-                int buyerChoice = scanner.nextInt();
-                scanner.nextLine();  // Consume newline
-
-                switch (buyerChoice) {
-                    case 1:
-                        // Browse products
-                        productService.listAllProducts();
-                        break;
-
-                    case 2:
-                        System.out.println("Logging out...");
-                        return;
-
-                    default:
-                        System.out.println("Invalid option! Please try again.");
+        // Ensure loggedInUser is not null
+        if (loggedInUser != null) {
+            if (loggedInUser instanceof Buyer) {
+                // Buyer menu
+                while (true) {
+                    System.out.println("\nBuyer Menu:");
+                    System.out.println("1. Browse products");
+                    System.out.println("2. Logout");
+                    System.out.print("Choose an option: ");
+                    int buyerChoice = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+        
+                    switch (buyerChoice) {
+                        case 1:
+                            // Browse products
+                            productService.listAllProducts().forEach(product -> System.out.println(product));
+                            break;
+        
+                        case 2:
+                            System.out.println("Logging out...");
+                            return;  // Exit loop and return to the main menu
+        
+                        default:
+                            System.out.println("Invalid option! Please try again.");
+                    }
+                }
+            } else if (loggedInUser instanceof Seller) {
+                // Seller menu
+                while (true) {
+                    System.out.println("\nSeller Menu:");
+                    System.out.println("1. List all my products");
+                    System.out.println("2. Add new product");
+                    System.out.println("3. Update product");
+                    System.out.println("4. Logout");
+                    System.out.print("Choose an option: ");
+                    int sellerChoice = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+        
+                    switch (sellerChoice) {
+                        case 1:
+                            // List seller's products
+                            ((Seller) loggedInUser).viewProducts();
+                            break;
+        
+                        case 2:
+                            // Add new product
+                            System.out.print("Enter product name: ");
+                            String productName = scanner.nextLine();
+                            System.out.print("Enter product price: ");
+                            double productPrice = scanner.nextDouble();
+                            System.out.print("Enter product quantity: ");
+                            int productQuantity = scanner.nextInt();
+                            scanner.nextLine();  // Consume newline
+                        
+                            // Ensure seller ID is passed to the addProduct method
+                            ((Seller) loggedInUser).addProduct(productName, productPrice, productQuantity);
+                            break;
+                        
+                        case 3:
+                            // Update existing product
+                            System.out.print("Enter product ID to update: ");
+                            int productIdToUpdate = scanner.nextInt();
+                            scanner.nextLine();  // Consume newline
+                            System.out.print("Enter new product name: ");
+                            String updatedName = scanner.nextLine();
+                            System.out.print("Enter new product price: ");
+                            double updatedPrice = scanner.nextDouble();
+                            System.out.print("Enter new product quantity: ");
+                            int updatedQuantity = scanner.nextInt();
+                            scanner.nextLine();  // Consume newline
+                            ((Seller) loggedInUser).updateProduct(productIdToUpdate, updatedName, updatedPrice, updatedQuantity, loggedInUser.getId());
+                            break;
+        
+                        case 4:
+                            System.out.println("Logging out...");
+                            return;  // Exit loop and return to the main menu
+        
+                        default:
+                            System.out.println("Invalid option! Please try again.");
+                    }
+                }
+            } else if (loggedInUser instanceof Admin) {
+                // Admin menu
+                while (true) {
+                    System.out.println("\nAdmin Menu:");
+                    System.out.println("1. List all products");
+                    System.out.println("2. List all users");
+                    System.out.println("3. Logout");
+                    System.out.print("Choose an option: ");
+                    int adminChoice = scanner.nextInt();
+                    scanner.nextLine();  // Consume newline
+        
+                    switch (adminChoice) {
+                        case 1:
+                            // List all products
+                            productService.listAllProducts().forEach(product -> System.out.println(product));
+                            break;
+        
+                        case 2:
+                            // List all users
+                            userService.listAllUsers();
+                            break;
+        
+                        case 3:
+                            System.out.println("Logging out...");
+                            return;  // Exit loop and return to the main menu
+        
+                        default:
+                            System.out.println("Invalid option! Please try again.");
+                    }
                 }
             }
-        } else if (loggedInUser instanceof Seller) {
-            // Seller menu
-            Seller seller = (Seller) loggedInUser;
-            while (true) {
-                System.out.println("\nSeller Menu:");
-                System.out.println("1. List all my products");
-                System.out.println("2. Add new product");
-                System.out.println("3. Update product");
-                System.out.println("4. Logout");
-                System.out.print("Choose an option: ");
-                int sellerChoice = scanner.nextInt();
-                scanner.nextLine();  // Consume newline
-
-                switch (sellerChoice) {
-                    case 1:
-                        // List seller's products
-                        seller.viewProducts();
-                        break;
-
-                    case 2:
-                        // Add new product
-                        System.out.print("Enter product name: ");
-                        String productName = scanner.nextLine();
-                        System.out.print("Enter product price: ");
-                        double productPrice = scanner.nextDouble();
-                        System.out.print("Enter product quantity: ");
-                        int productQuantity = scanner.nextInt();
-                        scanner.nextLine();  // Consume newline
-
-                        // Corrected: Pass individual parameters to addProduct method
-                        productService.addProduct(productName, productPrice, productQuantity, seller.getId());
-                        break;
-
-                    case 3:
-                        // Update existing product
-                        System.out.print("Enter product ID to update: ");
-                        int productIdToUpdate = scanner.nextInt();
-                        scanner.nextLine();  // Consume newline
-                        System.out.print("Enter new product name: ");
-                        String updatedName = scanner.nextLine();
-                        System.out.print("Enter new product price: ");
-                        double updatedPrice = scanner.nextDouble();
-                        System.out.print("Enter new product quantity: ");
-                        int updatedQuantity = scanner.nextInt();
-                        scanner.nextLine();  // Consume newline
-
-                        seller.updateProduct(productIdToUpdate, updatedName, updatedPrice, updatedQuantity, seller.getId());
-                        break;
-
-                    case 4:
-                        System.out.println("Logging out...");
-                        return;
-
-                    default:
-                        System.out.println("Invalid option! Please try again.");
-                }
-            }
-        } else if (loggedInUser instanceof Admin) {
-            // Admin menu
-            Admin admin = (Admin) loggedInUser;
-            while (true) {
-                System.out.println("\nAdmin Menu:");
-                System.out.println("1. List all products");
-                System.out.println("2. List all users");
-                System.out.println("3. Logout");
-                System.out.print("Choose an option: ");
-                int adminChoice = scanner.nextInt();
-                scanner.nextLine();  // Consume newline
-
-                switch (adminChoice) {
-                    case 1:
-                        admin.listAllProducts();
-                        break;
-
-                    case 2:
-                        // List all users (fix userService issue)
-                        userService.listAllUsers();
-                        break;
-
-                    case 3:
-                        System.out.println("Logging out...");
-                        return;
-
-                    default:
-                        System.out.println("Invalid option! Please try again.");
-                }
-            }
+        } else {
+            System.out.println("Error: Invalid user.");
         }
     }
 }
-
-
-
-
-
 

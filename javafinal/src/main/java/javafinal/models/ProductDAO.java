@@ -3,12 +3,10 @@ package models;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import database.DBConnection;
 
 public class ProductDAO {
-    
+
     private Connection connection;
 
     // Constructor to initialize connection to the database
@@ -17,21 +15,26 @@ public class ProductDAO {
     }
 
     // Add a new product
-    public void addProduct(Product product) {
-        String sql = "INSERT INTO products (name, price, quantity, seller_id) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, product.getName());
-            statement.setDouble(2, product.getPrice());
-            statement.setInt(3, product.getQuantity());
-            statement.setInt(4, product.getSellerId());
-            statement.executeUpdate();
+    public void addProduct(String name, double price, int quantity, int sellerId) {
+        String query = "INSERT INTO products (name, price, quantity, seller_id) VALUES (?, ?, ?, ?)";
+    
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+    
+            stmt.setString(1, name);
+            stmt.setDouble(2, price);
+            stmt.setInt(3, quantity);
+            stmt.setInt(4, sellerId);  // Make sure this is the correct seller ID
+    
+            stmt.executeUpdate();
+    
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    // Update an existing product
-    public void updateProduct(Product product) {
+    
+    // Update an existing product and return a boolean indicating success or failure
+    public boolean updateProduct(Product product) {
         String sql = "UPDATE products SET name = ?, price = ?, quantity = ?, seller_id = ? WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, product.getName());
@@ -39,9 +42,11 @@ public class ProductDAO {
             statement.setInt(3, product.getQuantity());
             statement.setInt(4, product.getSellerId());
             statement.setInt(5, product.getId()); // Make sure to pass the id for the update
-            statement.executeUpdate();
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0; // Return true if at least one row is updated
         } catch (SQLException e) {
             e.printStackTrace();
+            return false; // Return false in case of an error
         }
     }
 
@@ -101,4 +106,5 @@ public class ProductDAO {
         return products;
     }
 }
+
 

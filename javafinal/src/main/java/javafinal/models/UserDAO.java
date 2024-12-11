@@ -48,6 +48,28 @@ public class UserDAO {
         return user;
     }
 
+    // New method to find user by username
+    public User findByUsername(String username) {
+        String query = "SELECT * FROM users WHERE username = ?";
+        User user = null;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                user = new User(rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("role"));
+                user.setId(rs.getInt("id"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
     // Read (Get all users)
     public List<User> getAllUsers() {
         String query = "SELECT * FROM users";
@@ -103,4 +125,6 @@ public class UserDAO {
         }
     }
 }
+
+
 
